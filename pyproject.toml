@@ -1,0 +1,15 @@
+[project]
+name = "minimum-compute-use"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "browserbase==1.3.0",
+    "google-genai>=1.40.0",
+    "playwright==1.52.0",
+    "pydantic==2.11.4",
+    "pytest>=8.4.2",
+    "rich>=14.2.0",
+    "termcolor==3.1.0",
+]
