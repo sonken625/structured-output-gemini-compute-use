@@ -3,7 +3,6 @@
 このプロジェクトは、[Google Gemini Computer Use Preview](https://github.com/google-gemini/computer-use-preview)をベースに、Playwrightのみを使用したシンプルな実装です。
 
 ## 主な特徴
-
 ### 1. Playwrightに特化
 - 元のサンプルからSeleniumとAppiumの実装を削除し、Playwrightのみに特化
 - よりシンプルで理解しやすいコードベース
@@ -74,7 +73,7 @@ if __name__ == "__main__":
     api_key = "YOUR_API_KEY_HERE"  # あなたのAPIキーを入力
 
     # 基本的な実行
-    main(query=query, api_key=api_key)
+    run_agent(query=query, api_key=api_key)
 ```
 
 ### 高度な使い方
@@ -93,7 +92,7 @@ class WeatherInfo(BaseModel):
     additional_info: Optional[str] = None
 
 # 構造化出力付きで実行
-main(
+run_agent(
     query="googleで東京の天気を検索して何度か教えて",
     api_key=api_key,
     response_schema=WeatherInfo  # 構造化出力のスキーマを指定
@@ -103,7 +102,7 @@ main(
 #### 2. トークン制限を設定する場合
 
 ```python
-main(
+run_agent(
     query=query,
     api_key=api_key,
     max_input_tokens=10000,   # 最大入力トークン数
@@ -116,13 +115,13 @@ main(
 まず、リモートデバッグポートでブラウザを起動（上記参照）してから：
 
 ```python
-def main(query: str, api_key: str, ...):
-    env = PlaywrightComputer(
-        screen_size=PLAYWRIGHT_SCREEN_SIZE,
-        initial_url="https://www.google.com",
-        highlight_mouse=True,
-        close_on_exit=False,
-        remote_debugging_port=9222  # 既存ブラウザのポート番号
+    run_agent(
+        query=query,
+        api_key=api_key,
+        max_input_tokens=15000,
+        max_output_tokens=10000,
+        remote_debugging_port=9222,
+        response_schema=WeatherInfo,
     )
     # 以降は同じ
 ```
@@ -146,7 +145,7 @@ class PythonVersionInfo(BaseModel):
     download_url: Optional[str] = None
     features: Optional[list[str]] = None
 
-main(
+run_agent(
     query=query,
     api_key=api_key,
     response_schema=PythonVersionInfo,
@@ -241,7 +240,6 @@ export GEMINI_API_KEY="your-api-key-here"
 - PDFやOfficeファイルの直接操作は未対応
 
 ## ライセンス
-
 Apache License 2.0（Google オリジナルコードのライセンスに準拠）
 
 ## 参考リンク

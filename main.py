@@ -70,7 +70,7 @@ if __name__ == "__main__":
         api_key=api_key,
         max_input_tokens=15000,
         max_output_tokens=10000,
-        remote_debugging_port=9222,
+        # remote_debugging_port=9222,
         response_schema=WeatherInfo,
     )
 
