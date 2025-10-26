@@ -10,8 +10,6 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
-# limitations under the License.
-import os
 from typing import Literal, Optional, Union, Any, Type
 from google import genai
 from google.genai import types
@@ -24,13 +22,12 @@ from google.genai.types import (
     FunctionResponse,
     FinishReason,
 )
-import json
 from pydantic import BaseModel
 import time
 from rich.console import Console
 from rich.table import Table
 
-from client import EnvState,PlaywrightComputer
+from client import EnvState, PlaywrightComputer
 
 MAX_RECENT_TURN_WITH_SCREENSHOTS = 3
 PREDEFINED_COMPUTER_USE_FUNCTIONS = [
@@ -78,9 +75,7 @@ class BrowserAgent:
         self._verbose = verbose
         self._response_schema = response_schema
         self.final_reasoning = None
-        self._client = genai.Client(
-            api_key=api_key
-        )
+        self._client = genai.Client(api_key=api_key)
 
         # 初期プロンプトを設定
         initial_prompt = self._query
@@ -282,29 +277,28 @@ class BrowserAgent:
     ) -> types.GenerateContentResponse:
         for attempt in range(max_retries):
             try:
+                response = self._client.models.generate_content(
+                    model=self._model_name,
+                    contents=self._contents,
+                    config=self._generate_content_config,
+                )
                 if self._debug:
                     termcolor.cprint(
-                            "DEBUG: Current contents sent to model:",
-                            color="white",
+                        "DEBUG: Current contents sent to model:",
+                        color="white",
                     )
                     termcolor.cprint(
-                            self._contents,
-                            color="white",
+                        self._contents,
+                        color="white",
                     )
-
                     termcolor.cprint(
-                        f"DEBUG: Generating content with model :",
+                        "DEBUG: Generating content with model :",
                         color="yellow",
                     )
                     termcolor.cprint(
                         response.model_dump_json(indent=2),
                         color="yellow",
                     )
-                response = self._client.models.generate_content(
-                    model=self._model_name,
-                    contents=self._contents,
-                    config=self._generate_content_config,
-                )
 
                 return response  # Return response on success
             except Exception as e:
@@ -355,30 +349,40 @@ class BrowserAgent:
             ):
                 try:
                     response = self.get_model_response()
-                except Exception as e:
+                except Exception:
                     return "COMPLETE"
         else:
             try:
                 response = self.get_model_response()
-            except Exception as e:
+            except Exception:
                 return "COMPLETE"
 
         # トークン使用量を更新
-        if hasattr(response, 'usage_metadata') and response.usage_metadata:
-            if hasattr(response.usage_metadata, 'prompt_token_count'):
-                self.total_input_tokens += (response.usage_metadata.prompt_token_count or 0)
-            if hasattr(response.usage_metadata, 'candidates_token_count'):
-                self.total_output_tokens += (response.usage_metadata.candidates_token_count or 0)
+        if hasattr(response, "usage_metadata") and response.usage_metadata:
+            if hasattr(response.usage_metadata, "prompt_token_count"):
+                self.total_input_tokens += (
+                    response.usage_metadata.prompt_token_count or 0
+                )
+            if hasattr(response.usage_metadata, "candidates_token_count"):
+                self.total_output_tokens += (
+                    response.usage_metadata.candidates_token_count or 0
+                )
 
             # トークン制限チェック
-            if self._max_total_input_tokens and self.total_input_tokens > self._max_total_input_tokens:
+            if (
+                self._max_total_input_tokens
+                and self.total_input_tokens > self._max_total_input_tokens
+            ):
                 termcolor.cprint(
                     f"入力トークン制限を超過しました: {self.total_input_tokens} > {self._max_total_input_tokens}",
                     color="red",
                 )
                 return "COMPLETE"
 
-            if self._max_total_output_tokens and self.total_output_tokens > self._max_total_output_tokens:
+            if (
+                self._max_total_output_tokens
+                and self.total_output_tokens > self._max_total_output_tokens
+            ):
                 termcolor.cprint(
                     f"出力トークン制限を超過しました: {self.total_output_tokens} > {self._max_total_output_tokens}",
                     color="red",
@@ -408,8 +412,6 @@ class BrowserAgent:
             )
             return "CONTINUE"
 
-
-
         reasoning = self.get_text(candidate)
         function_calls = self.extract_function_calls(candidate)
 
@@ -421,14 +423,12 @@ class BrowserAgent:
         ):
             return "CONTINUE"
 
-
-
         function_call_strs = []
         for function_call in function_calls:
             # Print the function call and any reasoning.
             function_call_str = f"Name: {function_call.name}"
             if function_call.args:
-                function_call_str += f"\nArgs:"
+                function_call_str += "\nArgs:"
                 for key, value in function_call.args.items():
                     function_call_str += f"\n  {key}: {value}"
             function_call_strs.append(function_call_str)
@@ -452,9 +452,15 @@ class BrowserAgent:
 
             # 制限に近づいた場合は色を変える
             color = "green"
-            if self._max_total_input_tokens and self.total_input_tokens > self._max_total_input_tokens * 0.8:
+            if (
+                self._max_total_input_tokens
+                and self.total_input_tokens > self._max_total_input_tokens * 0.8
+            ):
                 color = "yellow"
-            if self._max_total_output_tokens and self.total_output_tokens > self._max_total_output_tokens * 0.8:
+            if (
+                self._max_total_output_tokens
+                and self.total_output_tokens > self._max_total_output_tokens * 0.8
+            ):
                 color = "yellow"
 
             termcolor.cprint(token_info, color=color)
@@ -553,14 +559,13 @@ class BrowserAgent:
                             ):
                                 part.function_response.parts = None
 
-
         return "CONTINUE"
 
     def _get_safety_confirmation(
         self, safety: dict[str, Any]
     ) -> Literal["CONTINUE", "TERMINATE"]:
         if safety["decision"] != "require_confirmation":
-            raise ValueError(f"Unknown safety decision: safety['decision']")
+            raise ValueError("Unknown safety decision: safety['decision']")
         termcolor.cprint(
             "Safety service requires explicit confirmation!",
             color="yellow",

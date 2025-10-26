@@ -67,12 +67,15 @@ PLAYWRIGHT_KEY_MAP = {
     "f12": "F12",
     "command": "Meta",  # 'Meta' is Command on macOS, Windows key on Windows
 }
+
+
 class EnvState(pydantic.BaseModel):
     # The screenshot in PNG format.
     screenshot: bytes
     url: str
 
-class PlaywrightComputer():
+
+class PlaywrightComputer:
     """Connects to a local Playwright instance.
 
     Args:
@@ -97,7 +100,6 @@ class PlaywrightComputer():
         close_on_exit: bool = True,
         headless: bool = False,
     ):
-        
         self._initial_url = initial_url
         self._screen_size = screen_size
         self._search_engine_url = search_engine_url
@@ -151,7 +153,7 @@ class PlaywrightComputer():
         self._context.on("page", self._handle_new_page)
 
         termcolor.cprint(
-            f"Started local playwright.",
+            "Started local playwright.",
             color="green",
             attrs=["bold"],
         )
@@ -162,11 +164,12 @@ class PlaywrightComputer():
             if self._context:
                 self._context.close()
             try:
-                    self._browser.close()
+                self._browser.close()
             except Exception as e:
                 # Browser was already shut down because of SIGINT or such.
-                if "Browser.close: Connection closed while reading from the driver" in str(
-                    e
+                if (
+                    "Browser.close: Connection closed while reading from the driver"
+                    in str(e)
                 ):
                     pass
                 else:
