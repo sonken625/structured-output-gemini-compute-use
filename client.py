@@ -128,10 +128,9 @@ class PlaywrightComputer:
             )
             self._context = self._browser.contexts[0]
             self._page = self._context.pages[0]
-            self._page.set_viewport_size({
-                    "width": self._screen_size[0],
-                    "height": self._screen_size[1]
-            })
+            self._page.set_viewport_size(
+                {"width": self._screen_size[0], "height": self._screen_size[1]}
+            )
 
         else:
             self._browser = self._playwright.chromium.launch(
