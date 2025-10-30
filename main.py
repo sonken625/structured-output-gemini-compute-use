@@ -3,6 +3,9 @@ from agent import BrowserAgent
 from pydantic import BaseModel
 from typing import Optional
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 PLAYWRIGHT_SCREEN_SIZE = (1440, 900)
 
