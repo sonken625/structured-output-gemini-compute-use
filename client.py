@@ -126,6 +126,12 @@ class PlaywrightComputer:
             self._browser = self._playwright.chromium.connect_over_cdp(
                 "http://localhost:9222"
             )
+            self._context = self._browser.contexts[0]
+            self._page = self._context.pages[0]
+            self._page.set_viewport_size(
+                {"width": self._screen_size[0], "height": self._screen_size[1]}
+            )
+
         else:
             self._browser = self._playwright.chromium.launch(
                 args=[
@@ -141,15 +147,15 @@ class PlaywrightComputer:
                 headless=bool(self.headless),
             )
 
-        self._context = self._browser.new_context(
-            viewport={
-                "width": self._screen_size[0],
-                "height": self._screen_size[1],
-            }
-        )
-        self._page = self._context.new_page()
-        self._page.goto(self._initial_url)
+            self._context = self._browser.new_context(
+                viewport={
+                    "width": self._screen_size[0],
+                    "height": self._screen_size[1],
+                }
+            )
+            self._page = self._context.new_page()
 
+        self._page.goto(self._initial_url)
         self._context.on("page", self._handle_new_page)
 
         termcolor.cprint(

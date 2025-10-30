@@ -3,6 +3,9 @@ from agent import BrowserAgent
 from pydantic import BaseModel
 from typing import Optional
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 PLAYWRIGHT_SCREEN_SIZE = (1440, 900)
 
@@ -70,7 +73,7 @@ if __name__ == "__main__":
         api_key=api_key,
         max_input_tokens=15000,
         max_output_tokens=10000,
-        # remote_debugging_port=9222,
+        remote_debugging_port=9222,
         response_schema=WeatherInfo,
     )
 
